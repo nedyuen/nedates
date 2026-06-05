@@ -1,6 +1,8 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase/config";
+import type { Database } from "@/lib/database.types";
 import type { ActivityType } from "@/lib/supabase";
 
 export type SubmitRequestInput = {
@@ -17,7 +19,7 @@ export type SubmitRequestInput = {
 export async function submitRequest(
   input: SubmitRequestInput
 ): Promise<{ error?: string }> {
-  const supabase = await createClient();
+  const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY);
   const { error } = await supabase.from("meetup_requests").insert(input);
   if (error) return { error: error.message };
   return {};
