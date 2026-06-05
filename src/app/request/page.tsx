@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { createClient, type ActivityType } from "@/lib/supabase";
+import { submitRequest } from "./actions";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -80,14 +80,12 @@ export default function RequestPage() {
     setLoading(true);
     setServerError(null);
 
-    // Generate UUID client-side so we don't need SELECT permission after insert
     const id = crypto.randomUUID();
-    const supabase = createClient();
-    const { error } = await supabase.from("meetup_requests").insert({
+    const result = await submitRequest({
       id,
       name: fields.name.trim(),
       email: fields.email.trim().toLowerCase(),
-      activity: fields.activity as ActivityType,
+      activity: fields.activity as "breakfast" | "lunch" | "dinner" | "drink" | "walk" | "chat" | "day-trip" | "other" | "bucket-list",
       message: fields.message.trim(),
       location: fields.location.trim(),
       start_time: new Date(fields.startTime).toISOString(),
@@ -96,7 +94,7 @@ export default function RequestPage() {
 
     setLoading(false);
 
-    if (error) {
+    if (result.error) {
       setServerError("Something went wrong. Please try again.");
       return;
     }
